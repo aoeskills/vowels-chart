@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh" width="1920px">
+<head>
+  <meta charset="UTF-8">
+  <meta content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vowels chart</title>
+  <link href="./css/main.css" rel="stylesheet" type="text/css" />
+  <link href="./css/utils.css" rel="stylesheet" type="text/css" />
+  <link href="./css/panel.css" rel="stylesheet" type="text/css" />
+  <link href="./css/vowels.css" rel="stylesheet" type="text/css" />
+  <style id="vowels-locale-style">
+    .vowels-table__row:not([data-locale~=en-US]):not([data-locale~=en-GB]) .vowels-table__symbol{
+      color: #c5c2bd;
+    }
+    .examples-list__item:not([data-locale~=en-US]):not([data-locale~=en-GB]) {
+      display: none;
+    }
+  </style>
+  <style id="translation-style">
+    .t-list>:not(.t-list__zh) {
+      display: none;
+    }
+  </style>
+  <script src="./js/global-variables.js"></script>
+  <script src="./js/setting.js"></script>
+</head>
+<body data-global-locale="en-US en-GB">
+  <div id="page" class="full flex flex-center flex-col page-spaces">
+    <header>
+      <h1>
+        <ul class="t-list"><li class="t-list__zh">IPA 元音表</li><li class="t-list__en">IPA vowels chart</li></ul> 
+      </h1>
+      <span>
+        <ul class="t-list"><li class="t-list__zh">(僅英語)</li><li class="t-list__en">(in English)</li></ul> 
+      </span>
+    </header>
+    <div id="main-container" class="main-container">
+      <div id="panel" class="panel">
+        <form class="panel__settings" onchange="handleSettingFormChange(this)">
+          <div class="panel__settings__left">
+            <!-- language select -->
+            <div class="dropdown dropdown--select" tabindex="-1">
+              <ul class="t-list"><li class="t-list__zh">介面語言</li><li class="t-list__en">UI language</li></ul> 
+              <div class="dropdown__menu"  tabindex="-1">
+                <div class="dropdown__menu__option">
+                  <input name="language" type="radio" id="language_zh" value="zh">
+                  <label for="language_zh">
+                    <ul class="t-list"><li class="t-list__zh">中文</li><li class="t-list__en">Chinese</li></ul> 
+                  </label>
+                </div>
+                <div class="dropdown__menu__option">
+                  <input name="language" type="radio" id="language__en" value="en">
+                  <label for="language__en">
+                    <ul class="t-list"><li class="t-list__zh">英文</li><li class="t-list__en">English, English, English!</li></ul> 
+                  </label>
+                </div>
+              </div>
+            </div>
+            <!-- vowels-locale select -->
+            <div class="dropdown dropdown--select" tabindex="-1">
+              <ul class="t-list" id="vowels-locale__placeholder"><li class="t-list__zh" title="顯示選中的地區會使用到的發音, 至少選一項">發音地區</li><li class="t-list__en" title="Show vowels that in use in selected locales, at least select one.">Vowels locale</li></ul> 
+              <div class="dropdown__menu"  tabindex="-1">
+                <div class="dropdown__menu__option">
+                  <input name="vowels-locale" id="vowels-locale__en-US" value="en-US" type="checkbox" checked>
+                  <label for="vowels-locale__en-US">
+                    <ul class="t-list"><li class="t-list__zh">美式英語</li><li class="t-list__en">American English</li></ul> 
+                  </label>
+                </div>
+                <div class="dropdown__menu__option">
+                  <input name="vowels-locale" id="vowels-locale__en-GB" value="en-GB" type="checkbox" checked>
+                  <label for="vowels-locale__en-GB">
+                    <ul class="t-list"><li class="t-list__zh">英式英語</li><li class="t-list__en">British English</li></ul> 
+                  </label>
+                </div>
+                <div class="dropdown__menu__option">
+                  <input name="vowels-locale" id="vowels-locale__en-AU" value="en-AU" type="checkbox" checked>
+                  <label for="vowels-locale__en-AU">
+                    <ul class="t-list"><li class="t-list__zh">澳洲英語</li><li class="t-list__en">Australian English</li></ul> 
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel__settings__right">
+            <!-- auto play -->
+            <label class="toggle-button" data-active="true">
+              <ul class="t-list"><li class="t-list__zh">自動播放</li><li class="t-list__en">Auto-play</li></ul> 
+              <input id="auto-play" name="auto-play" type="checkbox">
+            </label>
+            <!-- volume -->
+            <div class="dropdown dropdown--volume" tabindex="-1">
+              <img class="" src="./assets/images/volume-control.svg">
+              <span class="dropdown--volume__placeholder">Volume</span>
+              <div class="dropdown__menu"  tabindex="-1">
+                <input id="volume" name="volume" type="range" min="0" max="1" step="0.1">
+              </div>
+            </div>
+          </div>
+        </form>
+        <div class="vowel-detail">
+          <div class="vowel-detail__placeholder">
+            <ul class="t-list"><li class="t-list__zh">移動游標到元音表的符號上, 可以顯示詳細訊息</li><li class="t-list__en">Hover vowel symbol below to see detail of the vowel</li></ul>
+          </div>
+        </div>
+      </div>
+      <div id="chart" class="chart">
+        <!-- chart line canvas -->
+        <canvas id="chart__lines-canvas">
+          <script src="./js/chart-lines-canvas.js"></script>
+          <script>
+            const canvas = document.getElementById("chart__lines-canvas");
+            registerCanvas(canvas)
+          </script>
+        </canvas>
+
+        <!-- chart axis x -->
+        <ul id="tongue-front-to-back" class="chart__axis-labels chart__axis-labels--x">
+          <li style="top: 1.4rem;right: 18rem;" class="chart__axis-labels__label">
+            <ul class="t-list"><li class="t-list__zh">前</li><li class="t-list__en">Front</li></ul>
+          </li>
+          <li style="top: 1.4rem;right: 10rem;" class="chart__axis-labels__label">
+            <ul class="t-list"><li class="t-list__zh">央</li><li class="t-list__en">Central</li></ul>
+          </li>
+          <li style="top: 1.4rem;right: 2rem;" class="chart__axis-labels__label">
+            <ul class="t-list"><li class="t-list__zh">後</li><li class="t-list__en">Back</li></ul>
+          </li>
+        </ul>
+
+        <!-- chart axis y -->
+        <ul id="mouth-close-to-open" class="chart__axis-labels chart__axis-labels--y">
+          <li style="top: 3rem;right: 20rem;" class="chart__axis-labels__label">
+            <ul class="t-list"><li class="t-list__zh">閉</li><li class="t-list__en">Close</li></ul>
+          </li>
+          <li style="top: 4.9rem;right: 20rem;" class="chart__axis-labels__label">
+            <ul class="t-list"><li class="t-list__zh">次閉</li><li class="t-list__en">Near-close</li></ul>
+          </li>
+          <li style="top: 6.8rem;right: 20rem;" class="chart__axis-labels__label">
+            <ul class="t-list"><li class="t-list__zh">半閉</li><li class="t-list__en">Close-mid</li></ul>
+          </li>
+          <li style="top: 8.7rem;right: 20rem;" class="chart__axis-labels__label">
+            <ul class="t-list"><li class="t-list__zh">中</li><li class="t-list__en">Mid</li></ul>
+          </li>
+          <li style="top: 10.6rem;right: 20rem;" class="chart__axis-labels__label">
+            <ul class="t-list"><li class="t-list__zh">半開</li><li class="t-list__en">Open-mid</li></ul>
+          </li>
+          <li style="top: 12.5rem;right: 20rem;" class="chart__axis-labels__label">
+            <ul class="t-list"><li class="t-list__zh">次開</li><li class="t-list__en">Near-open</li></ul>
+          </li>
+          <li style="top: 14.4rem;right: 20rem;" class="chart__axis-labels__label">
+            <ul class="t-list"><li class="t-list__zh">開</li><li class="t-list__en">Open</li></ul>
+          </li>
+        </ul>
+
+        <!-- vowels table -->
+        <table id="vowels-table" class="vowels-table">
+          <thead>
+            <tr><th>Vowels symbol</th><th>Name</th><th>Examples</th><th>Pronunciation</th></tr>
+          </thead>
+          <tbody>
+            <!-- i -->
+            <tr class="vowels-table__row" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU">
+              <td class="vowels-table__symbol vowels-table__symbol__right-dot" style="left: 6.3rem;top: 3rem;">i</td>
+              <td class="vowels-table__name"><ul class="t-list"><li class="t-list__zh">閉前不圓唇元音</li><li class="t-list__en">Close front unrounded vowel</li></ul></td>
+              <td class="vowels-table__examples">
+                <ul class="examples-list">
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>See</span><span class="IPA">/siː/</span></li>
+                </ul>
+              </td>
+              <td class="vowels-table__pronunciation"><div role="button" onclick="playAudioWithin(this)" class="vowels-table__pronunciation__button"><source src="./assets/pronunciations/Close_front_unrounded_vowel.ogg"></div></td>
+            </tr>
+
+            <!-- y -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol" style="left: 7.7rem;top: 3rem;">y</td>
+            </tr>
+
+            <!-- ɨ -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol vowels-table__symbol__right-dot" style="left: 14.3rem;top: 3rem;">ɨ</td>
+            </tr>
+
+            <!-- ʉ -->
+            <tr class="vowels-table__row" data-locale="en-AU" title="en-AU">
+              <td class="vowels-table__symbol" style="left: 15.6rem;top: 3rem;">ʉ</td>
+              <td class="vowels-table__name"><ul class="t-list"><li class="t-list__zh">閉央圓唇元音</li><li class="t-list__en">Close central rounded vowel</li></ul></td>
+              <td class="vowels-table__examples">
+                <ul class="examples-list">
+                  <li class="examples-list__item" data-locale="en-AU" title="en-AU"><span>Goose</span><span class="IPA">/gʉːs/</span></li>
+                  <li class="examples-list__item" data-locale="en-AU" title="en-AU"><span>Hoof</span><span class="IPA">/hʉːf/</span></li>
+                </ul>
+              </td>
+              <td class="vowels-table__pronunciation"><div role="button" onclick="playAudioWithin(this)" class="vowels-table__pronunciation__button"><source src="./assets/pronunciations/Close_central_rounded_vowel.ogg.mp3"></div></td>
+            </tr>
+
+            <!-- ɯ -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol vowels-table__symbol__right-dot" style="left: 22.35rem;top: 3rem;">ɯ</td>
+            </tr>
+
+            <!-- u -->
+            <tr class="vowels-table__row" data-locale="en-US en-GB" title="en-US en-GB">
+              <td class="vowels-table__symbol" style="left: 23.65rem;top: 3rem;">u</td>
+              <td class="vowels-table__name"><ul class="t-list"><li class="t-list__zh">閉後圓唇元音</li><li class="t-list__en">Close back rounded vowel</li></ul></td>
+              <td class="vowels-table__examples">
+                <ul class="examples-list">
+                  <li class="examples-list__item" data-locale="en-US en-GB" title="en-US en-GB"><span>School</span><span class="IPA">/skuːl/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB" title="en-US en-GB"><span>Who</span><span class="IPA">/huː/</span></li>
+                </ul>
+              </td>
+              <td class="vowels-table__pronunciation"><div role="button" onclick="playAudioWithin(this)" class="vowels-table__pronunciation__button"><source src="./assets/pronunciations/Close_back_rounded_vowel.ogg.mp3"></div></td>
+            </tr>
+
+            <!-- ɪ -->
+            <tr class="vowels-table__row" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU">
+              <td class="vowels-table__symbol vowels-table__symbol__right-dot" style="left: 9.4rem;top: 4.9rem;">ɪ</td>
+              <td class="vowels-table__name"><ul class="t-list"><li class="t-list__zh">次閉前不圓唇元音</li><li class="t-list__en">Near-close near-front unrounded vowel</li></ul></td>
+              <td class="vowels-table__examples">
+                <ul class="examples-list">
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>It</span><span class="IPA">/ɪt/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>Bit</span><span class="IPA">/bɪt/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>Pee</span><span class="IPA">/piː/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>If</span><span class="IPA">/ɪf/</span></li>
+                </ul>
+              </td>
+              <td class="vowels-table__pronunciation"><div role="button" onclick="playAudioWithin(this)" class="vowels-table__pronunciation__button"><source src="./assets/pronunciations/Near-close_near-front_unrounded_vowel.ogg"></div></td>
+            </tr>
+
+            <!-- ʏ -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol" style="left: 10.7rem;top: 4.9rem;">ʏ</td>
+            </tr>
+
+            <!-- ɨ̞ -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol vowels-table__symbol__right-dot" style="left: 15rem;top: 4.9rem;">ɨ̞</td>
+            </tr>
+
+            <!-- ʉ̞ -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol" style="left: 16.3rem;top: 4.9rem;">ʉ̞</td>
+            </tr>
+
+            <!-- ʊ -->
+            <tr class="vowels-table__row" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU">
+              <td class="vowels-table__symbol" style="left: 21.2rem;top: 4.9rem;">ʊ</td>
+              <td class="vowels-table__name"><ul class="t-list"><li class="t-list__zh">次閉後圓唇元音</li><li class="t-list__en">Near-close near-back rounded vowel</li></ul></td>
+              <td class="vowels-table__examples">
+                <ul class="examples-list">
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>Good</span><span class="IPA">/ɡʊd/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>Book</span><span class="IPA">/bʊk/</span></li>
+                </ul>
+              </td>
+              <td class="vowels-table__pronunciation"><div role="button" onclick="playAudioWithin(this)" class="vowels-table__pronunciation__button"><source src="./assets/pronunciations/Near-close_near-back_rounded_vowel.ogg"></div></td>
+            </tr>
+
+            <!-- e -->
+            <tr class="vowels-table__row" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU">
+              <td class="vowels-table__symbol vowels-table__symbol__right-dot" style="left: 8.7rem;top: 6.8rem;">e</td>
+              <td class="vowels-table__name"><ul class="t-list"><li class="t-list__zh">半閉前不圓唇元音</li><li class="t-list__en">Close-mid front unrounded vowel</li></ul></td>
+              <td class="vowels-table__examples">
+                <ul class="examples-list">
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>Head</span><span class="IPA">/hed/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>Bed</span><span class="IPA">/bed/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>Dress</span><span class="IPA">/dres/</span></li>
+                </ul>
+              </td>
+              <td class="vowels-table__pronunciation"><div role="button" onclick="playAudioWithin(this)" class="vowels-table__pronunciation__button"><source src="./assets/pronunciations/Close-mid_front_unrounded_vowel.ogg.mp3"></div></td>
+            </tr>
+
+            <!-- ø -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol" style="left: 10rem;top: 6.8rem;">ø</td>
+            </tr>
+
+            <!-- ɘ -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol vowels-table__symbol__right-dot" style="left: 15.5rem;top: 6.8rem;">ɘ</td>
+            </tr>
+
+            <!-- ɵ -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol" style="left: 16.8rem;top: 6.8rem;">ɵ</td>
+            </tr>
+
+            <!-- ɤ -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol vowels-table__symbol__right-dot" style="left: 22.35rem;top: 6.8rem;">ɤ</td>
+            </tr>
+
+            <!-- o -->
+            <tr class="vowels-table__row" data-locale="en-US en-AU" title="en-US en-AU">
+              <td class="vowels-table__symbol" style="left: 23.65rem;top: 6.8rem;">o</td>
+              <td class="vowels-table__name"><ul class="t-list"><li class="t-list__zh">半閉後圓唇元音</li><li class="t-list__en">Close-mid back rounded vowel</li></ul></td>
+              <td class="vowels-table__examples">
+                <ul class="examples-list">
+                  <li class="examples-list__item" data-locale="en-US" title="en-US"><span>Goat</span><span class="IPA">/ɡoʊt/</span></li>
+                  <li class="examples-list__item" data-locale="en-US" title="en-US"><span>Hoe</span><span class="IPA">/hoe/</span></li>
+                  <li class="examples-list__item" data-locale="en-AU" title="en-AU"><span>Sure</span><span class="IPA">/ʃoːr/</span></li>
+                  <li class="examples-list__item" data-locale="en-AU" title="en-AU"><span>Poor</span><span class="IPA">/poːr/</span></li>
+                </ul>
+              </td>
+              <td class="vowels-table__pronunciation"><div role="button" onclick="playAudioWithin(this)" class="vowels-table__pronunciation__button"><source src="./assets/pronunciations/Close-mid_back_rounded_vowel.ogg.mp3"></div></td>
+            </tr>
+
+            <!-- e̞ -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol vowels-table__symbol__right-dot" style="left: 9.9rem;top: 8.7rem;">e̞</tr>
+            </tr>
+
+            <!-- ø̞ -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol" style="left: 11.2rem;top: 8.7rem;">ø̞</td>
+            </tr>
+
+            <!-- ə -->
+            <tr class="vowels-table__row" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU">
+              <td class="vowels-table__symbol" style="left: 16.8rem;top: 8.7rem;">ə</td>
+              <td class="vowels-table__name"><ul class="t-list"><li class="t-list__zh">中央元音</li><li class="t-list__en">Mid central vowel</li></ul></td>
+              <td class="vowels-table__examples">
+                <ul class="examples-list">
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>About</span><span class="IPA">/əˈbaʊt/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>Alpha</span><span class="IPA">/ˈæl.fə/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>Today</span><span class="IPA">/təˈdeɪ/</span></li>
+                </ul>
+              </td>
+              <td class="vowels-table__pronunciation"><div role="button" onclick="playAudioWithin(this)" class="vowels-table__pronunciation__button"><source src="./assets/pronunciations/Mid-central_vowel.ogg"></div></td>
+            </tr>
+
+            <!-- ɤ̞ -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol vowels-table__symbol__right-dot" style="left: 22.35rem;top: 8.7rem;">ɤ̞</td>
+            </tr>
+
+            <!-- o̞ -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol" style="left: 23.65rem;top: 8.7rem;">o̞</td>
+            </tr>
+
+            <!-- ɛ -->
+            <tr class="vowels-table__row" data-locale="en-US en-GB" title="en-US en-GB">
+              <td class="vowels-table__symbol vowels-table__symbol__right-dot" style="left: 11.1rem;top: 10.6rem;">ɛ</td>
+              <td class="vowels-table__name"><ul class="t-list"><li class="t-list__zh">半開前不圓唇元音</li><li class="t-list__en">Open-mid front unrounded vowel</li></ul></td>
+              <td class="vowels-table__examples">
+                <ul class="examples-list">
+                  <li class="examples-list__item" data-locale="en-US en-GB" title="en-US en-GB"><span>Bed</span><span class="IPA">/bɛd/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB" title="en-US en-GB"><span>Dress</span><span class="IPA">/drɛs/</span></li>
+                </ul>
+              </td>
+              <td class="vowels-table__pronunciation"><div role="button" onclick="playAudioWithin(this)" class="vowels-table__pronunciation__button"><source src="./assets/pronunciations/Open-mid_front_unrounded_vowel.ogg.mp3"></div></td>
+            </tr>
+
+            <!-- œ -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol" style="left: 12.4rem;top: 10.6rem;">œ</td>
+            </tr>
+
+            <!-- ɜ -->
+            <tr class="vowels-table__row" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU">
+              <td class="vowels-table__symbol vowels-table__symbol__right-dot" style="left: 16.7rem;top: 10.6rem;">ɜ</td>
+              <td class="vowels-table__name"><ul class="t-list"><li class="t-list__zh">半開央不圓唇元音</li><li class="t-list__en">Open-mid central unrounded vowel</li></ul></td>
+              <td class="vowels-table__examples">
+                <ul class="examples-list">
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>Nurse</span><span class="IPA">/nɜːs/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>Bird</span><span class="IPA">/bɜːd/</span></li>
+                </ul>
+              </td>
+              <td class="vowels-table__pronunciation"><div role="button" onclick="playAudioWithin(this)" class="vowels-table__pronunciation__button"><source src="./assets/pronunciations/Open-mid_central_unrounded_vowel.ogg.mp3"></div></td>
+            </tr>
+
+            <!-- ɞ -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol" style="left: 18rem;top: 10.6rem;">ɞ</td>
+            </tr>
+
+            <!-- ʌ -->
+            <tr class="vowels-table__row" data-locale="en-US en-GB" title="en-US en-GB">
+              <td class="vowels-table__symbol vowels-table__symbol__right-dot" style="left: 22.35rem;top: 10.6rem;">ʌ</td>
+              <td class="vowels-table__name"><ul class="t-list"><li class="t-list__zh">半開央不圓唇元音</li><li class="t-list__en">Open-mid back unrounded vowel</li></ul></td>
+              <td class="vowels-table__examples">
+                <ul class="examples-list">
+                  <li class="examples-list__item" data-locale="en-US en-GB" title="en-US en-GB"><span>Bug</span><span class="IPA">/bʌɡ/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB" title="en-US en-GB"><span>But</span><span class="IPA">/bʌt/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB" title="en-US en-GB"><span>One</span><span class="IPA">/wʌn/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB" title="en-US en-GB"><span>Up</span><span class="IPA">/ʌp/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB" title="en-US en-GB"><span>Cup</span><span class="IPA">/kʌp/</span></li>
+                </ul>
+              </td>
+              <td class="vowels-table__pronunciation"><div role="button" onclick="playAudioWithin(this)" class="vowels-table__pronunciation__button"><source src="./assets/pronunciations/Open-mid_back_unrounded_vowel.ogg.mp3"></div></td>
+            </tr>
+
+            <!-- ɔ -->
+            <tr class="vowels-table__row" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU">
+              <td class="vowels-table__symbol" style="left: 23.65rem;top: 10.6rem;">ɔ</td>
+              <td class="vowels-table__name"><ul class="t-list"><li class="t-list__zh">開後圓唇元音</li><li class="t-list__en">Open back rounded vowel</li></ul></td>
+              <td class="vowels-table__examples">
+                <ul class="examples-list">
+                  <li class="examples-list__item" data-locale="en-US" title="en-US"><span>Four</span><span class="IPA">/fɔːr/</span></li>
+                  <li class="examples-list__item" data-locale="en-GB" title="en-GB"><span>Water</span><span class="IPA">/ˈwɔː.tə<span class="sup">r</span></span>/</li>
+                  <li class="examples-list__item" data-locale="en-US" title="en-US"><span>Board</span><span class="IPA">/bɔːrd/</span></li>
+                  <li class="examples-list__item" data-locale="en-GB" title="en-GB"><span>Board</span><span class="IPA">/fɔːd/</span></li>
+                  <li class="examples-list__item" data-locale="en-AU" title="en-AU"><span>Lot</span><span class="IPA">/lɔt/</span></li>
+                </ul>
+              </td>
+              <td class="vowels-table__pronunciation"><div role="button" onclick="playAudioWithin(this)" class="vowels-table__pronunciation__button"><source src="./assets/pronunciations/Open-mid_back_rounded_vowel.ogg.mp3"></div></td>
+            </tr>
+
+            <!-- æ -->
+            <tr class="vowels-table__row" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU">
+              <td class="vowels-table__symbol" style="left: 12.9rem;top: 12.5rem;">æ</td>
+              <td class="vowels-table__name"><ul class="t-list"><li class="t-list__zh">次開前不圓唇元音</li><li class="t-list__en">Near-open front unrounded vowel</li></ul></td>
+              <td class="vowels-table__examples">
+                <ul class="examples-list">
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>Trap</span><span class="IPA">/træp/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>Bat</span><span class="IPA">/bæt/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>Lab</span><span class="IPA">/læb/</span></li>
+                </ul>
+              </td>
+              <td class="vowels-table__pronunciation"><div role="button" onclick="playAudioWithin(this)" class="vowels-table__pronunciation__button"><source src="./assets/pronunciations/Near-open_front_unrounded_vowel.ogg"></div></td>
+            </tr>
+
+            <!-- ɐ -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol" style="left: 17.9rem;top: 12.5rem;">ɐ</td>
+            </tr>
+
+            <!-- a -->
+            <tr class="vowels-table__row" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU">
+              <td class="vowels-table__symbol vowels-table__symbol__right-dot" style="left: 13.5rem;top: 14.4rem;">a</td>
+              <td class="vowels-table__name"><ul class="t-list"><li class="t-list__zh">開前不圓唇元音</li><li class="t-list__en">Open front unrounded vowel</li></ul></td>
+              <td class="vowels-table__examples">
+                <ul class="examples-list">
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>Start</span><span class="IPA">/saːrt/</span></li>
+                  <li class="examples-list__item" data-locale="en-US en-GB en-AU" title="en-US en-GB en-AU"><span>Dark</span><span class="IPA">/daːrk/</span></li>
+                </ul>
+              </td>
+              <td class="vowels-table__pronunciation"><div role="button" onclick="playAudioWithin(this)" class="vowels-table__pronunciation__button"><source src="./assets/pronunciations/Open_front_unrounded_vowel.ogg.mp3"></div></td>
+            </tr>
+
+            <!-- ɶ -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol" style="left: 14.8rem;top: 14.4rem;">ɶ</td>
+            </tr>
+
+            <!-- ä -->
+            <tr class="vowels-table__row" data-locale="none">
+              <td class="vowels-table__symbol" style="left: 18.6rem;top: 14.4rem;">ä</td>
+            </tr>
+
+            <!-- ɑ -->
+            <tr class="vowels-table__row" data-locale="en-US en-GB" title="en-US en-GB">
+              <td class="vowels-table__symbol vowels-table__symbol__right-dot" style="left: 22.35rem;top: 14.4rem;">ɑ</td>
+              <td class="vowels-table__name"><ul class="t-list"><li class="t-list__zh">開後不圓唇元音</li><li class="t-list__en">Open back unrounded vowel</li></ul></td>
+              <td class="vowels-table__examples">
+                <ul class="examples-list">
+                  <li class="examples-list__item" data-locale="en-US" title="en-US"><span>Hot</span><span class="IPA">/hɑːt/</span></li>
+                  <li class="examples-list__item" data-locale="en-US" title="en-US"><span>Car</span><span class="IPA">/kɑːr/</span></li>
+                  <li class="examples-list__item" data-locale="en-GB" title="en-GB"><span>Car</span><span class="IPA">/kɑː<span class="sup">r</span>/</span></li>
+                  <li class="examples-list__item" data-locale="en-GB" title="en-GB"><span>Star</span><span class="IPA">/stɑː<span class="sup">r</span>/</span></li>
+                  <li class="examples-list__item" data-locale="en-US" title="en-US"><span>Stop</span><span class="IPA">/stɑːp/</span></li>
+                </ul>
+              </td>
+              <td class="vowels-table__pronunciation"><div role="button" onclick="playAudioWithin(this)" class="vowels-table__pronunciation__button"><source src="./assets/pronunciations/Open_back_unrounded_vowel.ogg.mp3"></div></td>
+            </tr>
+
+            <!-- ɒ -->
+            <tr class="vowels-table__row" data-locale="en-GB" title="en-GB">
+              <td class="vowels-table__symbol" style="left: 23.65rem;top: 14.4rem;">ɒ</td>
+              <td class="vowels-table__name"><ul class="t-list"><li class="t-list__zh">開後圓唇元音</li><li class="t-list__en">Open back rounded vowel</li></ul></td>
+              <td class="vowels-table__examples">
+                <ul class="examples-list">
+                  <li class="examples-list__item" data-locale="en-GB" title="en-GB"><span>Not</span><span class="IPA">/nɒt/</span></li>
+                </ul>
+              </td>
+              <td class="vowels-table__pronunciation"><div role="button" onclick="playAudioWithin(this)" class="vowels-table__pronunciation__button"><source src="./assets/pronunciations/Open_back_rounded_vowel.ogg.mp3"></div></td>
+            </tr>
+          </tbody>
+        </table>
+        <script src="./js/vowels-table.js"></script>
+        <script>document.querySelectorAll('.vowels-table__row').forEach(rowElement => registerVowelsTableRow(rowElement))</script>
+      </div>
+    </div>
+    <script>
+      const container = document.getElementsByClassName('main-container')[0]
+      function changeFontSize() {
+        document.documentElement.style.fontSize = `${container.clientWidth / 400 * 16}px`;
+      }
+      let containerWidth = container.clientWidth;
+      const resizeObserver = new ResizeObserver(()=>{
+        if(Math.abs(containerWidth - container.clientWidth) <= 1) return;
+        containerWidth = container.clientWidth;
+        changeFontSize();
+      });
+      resizeObserver.observe(container);
+      changeFontSize();
+    </script>
+    <div class="visual-guide-to-footer">
+      <img class="visual-guide-to-footer__icon" src="./assets/images/more.svg">
+    </div>
+  </div>
+  <footer class="flex flex-center page-spaces">
+    <div class="footer-container">
+      <ul class="t-list">
+        <li class="t-list__zh">
+          <p>
+            音標分為元音與輔音, 元音圖指的是將元音分佈在一個平面圖之中, 不同位置表示嘴巴張開的程度或舌頭放置前後的位置.
+          </p>
+          <p>
+            此元音的分佈是 IPA 的標準位置, 實務上不同口音可能會改變元音的位置例如
+            <a href="https://en.wikipedia.org/wiki/General_American_English" target="_blank"><span class="hover-to">美式英語<img class="hover-to__show" src="./assets/images/american-english-vowels-chart.png"></span></a>
+            和
+            <a href="https://langeek.co/en/grammar/course/1251/vowels/british"><span class="hover-to">英式英語<img class="hover-to__show" src="./assets/images/british-english-vowels-chart.png"></span>.</a>
+          </p>
+          <p>
+            這樣相同的字不用因為不同口音改變音標, 只需要知道同個音標在不同口音如何發聲. <a href="https://pronunciationstudio.com/british-english-ipa-variations/" target="_blank">這篇文章內的影片</a> 有很詳細的說明.
+          </p>
+          <p>
+            不同口音如果發音落差太大也可能使用不同的音標, 例如英式英語獨有的 <span class="IPA">/ɒ/</span> (e.g. <a href='https://dictionary.cambridge.org/uk/dictionary/english-chinese-traditional/not'>Not<span class="IPA">/nɒt/</span></a>), 不會出現在美式英語.
+          </p>
+          <br>
+          <p>
+            <b>
+              請先確認範例字在你想學的口音中是如何發音的, 才能知道這些音標該如何使用, 可以參考 <a href="https://youglish.com/pronounce/Goose/english/aus?" target="_blank">這個網站</a> 找到發音範例或搜尋 <span class="quote">"american/british/the accent" english vowels</span> 找到想要的發音範例.
+            </b>
+          </p>
+          <p>
+            游標移動到範例字會顯示該音標適用的口音,
+            大部分音標來源:
+            <a href="https://dictionary.cambridge.org" target="_blank">劍橋詞典</a>,
+            澳洲英語音標來源:
+            <a href="https://easypronunciation.com/en/phonetic-symbols-chart/australian-english/ipa" target="_blank">這個網站</a>,
+            聲音來源: <a href="https://zh.wikipedia.org/zh-tw/%E5%85%83%E9%9F%B3%E5%9B%BE" target="_blank">Wiki</a>.
+          </p>
+        </li>
+        <li class="t-list__en">
+          <p>
+            Phonetic system are composed of vowels and consonants, and the vowels will be scattered on vowels chart based on mouth close-to-open and tongue position front-to-back while pronounce it.
+          </p>
+          <p>
+            This chart is a copy of official IPA vowel chart, but normally vowels will be located in different coordinate based on language or accent rather then look like this, like the vowels chart of
+            <a href="https://en.wikipedia.org/wiki/General_American_English" target="_blank"><span class="hover-to">American english<img class="hover-to__show" src="./assets/images/american-english-vowels-chart.png"></span></a>
+            and
+            <a href="https://langeek.co/en/grammar/course/1251/vowels/british"><span class="hover-to">British english<img class="hover-to__show" src="./assets/images/british-english-vowels-chart.png"></span>.</a>
+          </p>
+          <p>
+            With accent-specific vowels chart a word can share the same phonetic symbol between accents, people only have to worry about how to pronounce the phonetic symbol in different accents.
+            For further explanation, watch <a href="https://pronunciationstudio.com/british-english-ipa-variations/" target="_blank">The video in this article</a>.
+          </p>
+          <p>
+            Still, it might just use other vowels if the difference of the pronunciations between accent is too big.
+            For example <span class="IPA">/ɒ/</span> is not used in American english but in British english use it for <a href='https://dictionary.cambridge.org/uk/dictionary/english-chinese-traditional/not'>Not<span class="IPA">/nɒt/</span></a>.
+          </p>
+          <br>
+          <p>
+            <b>
+              Understand how to pronounce the example words in the accent you wish to learn, than you can get a hang of how to use the vowels.
+              You can use <a href="https://youglish.com/pronounce/Goose/english/aus?" target="_blank">This website</a> or search <span class="quote">"american/british/the accent" english vowels</span> on the internet to find the pronunciation example you want.
+            </b>
+          </p>
+          <p>
+            The accent locale of example word phonetic symbols will show on hover.
+            Most example reference:<a href="https://dictionary.cambridge.org" target="_blank">Cambridge Dictionary</a>,
+            Australian english example reference:
+            <a href="https://easypronunciation.com/en/phonetic-symbols-chart/australian-english/ipa" target="_blank">This article</a>,
+            audio reference: <a href="https://zh.wikipedia.org/zh-tw/%E5%85%83%E9%9F%B3%E5%9B%BE" target="_blank">Wiki</a>.
+          </p>
+        </li>
+      </ul>
+    </div>
+  </footer>
+</body>
+</html>

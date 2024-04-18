@@ -1,0 +1,155 @@
+/* chart */
+#chart__lines-canvas {
+  pointer-events: none;
+  position: relative;
+  display: block;
+  width: 80%;
+  height: 95%;
+  left: 20%;
+  top: 5%;
+}
+.chart__axis-labels {
+  pointer-events: none;
+  user-select: none;
+}
+.chart__axis-labels > .chart__axis-labels__label {
+  position: absolute;
+  font-size: 0.6rem;
+  white-space: nowrap;
+}
+.chart__axis-labels--x > .chart__axis-labels__label {
+  transform: translateX(50%);
+}
+.chart__axis-labels--y > .chart__axis-labels__label {
+  transform: translateY(-50%);
+}
+
+/* vowels on chart */
+.vowels-table {
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.vowels-table th,
+.vowels-table .vowels-table__name,
+.vowels-table .vowels-table__examples,
+.vowels-table .vowels-table__pronunciation {
+  visibility: hidden;
+}
+.vowels-table {
+  font-size: 0.8rem;
+}
+.vowels-table tr,
+.vowels-table td,
+.vowels-table th {
+  display: block;
+  width: 0;
+  height: 0;
+}
+.vowels-table .vowels-table__symbol {
+  position: absolute;
+  pointer-events: all;
+  width: 1rem;
+  height: 1rem;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.4rem;
+  background: rgb(var(--background-color));
+  color: #1a4259;
+}
+.vowels-table .vowels-table__symbol[data-active="true"] {
+  width: 1rem;
+  height: 1rem;
+  box-shadow: inset 1px 1px 3px 1px var(--border-color);
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  cursor: url(./assets/images/pronounce.svg) 2 10, auto;
+}
+.vowels-table .vowels-table__symbol[data-active="true"]:hover {
+  background: #ffffff;
+}
+.vowels-table .vowels-table__symbol__right-dot::after {
+  content: "\25CF";
+  position: absolute;
+  font-size: 0.6rem;
+  left: calc(50% + 0.35rem);
+  width: 0.6rem;
+  height: 0.6rem;
+  line-height: 0.6rem;
+  text-align: center;
+  color: black;
+  background: rgb(var(--background-color));
+  border-radius: 999px;
+}
+
+/* vowels on panel */
+.vowel-detail {
+  position: relative;
+  height: 60%;
+  padding: 0.3rem;
+}
+.vowel-detail .vowels-table__row {
+  display: grid;
+  grid-template-columns: 10% min-content auto;
+  grid-template-rows: repeat(auto-fit, 30%);
+  gap: 0.2rem;
+}
+.vowel-detail td {
+  display: block;
+}
+.vowel-detail .vowels-table__symbol {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+.vowel-detail .vowels-table__name {
+  width: min-content;
+  word-break: keep-all;
+  white-space: nowrap;
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 0.6rem;
+}
+.vowel-detail .vowels-table__examples {
+  grid-column: 2 / span 2;
+  grid-row: 2 / span 2;
+  font-size: 0.6rem;
+  display: flex;
+  align-items: center;
+}
+.vowel-detail .vowels-table__pronunciation {
+  grid-column: 3;
+  grid-row: 1;
+}
+.vowel-detail .vowels-table__pronunciation__button {
+  height: 0.7rem;
+  width: 0.7rem;
+  background-image: url(./assets/images/pronounce-blue.svg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  cursor: pointer;
+  user-select: none;
+}
+
+.vowel-detail__placeholder {
+  width: 100%;
+  height: 100%;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #dddcd9;
+}
+
+.examples-list__item {
+  display: inline-block;
+  margin-right: 0.3rem;
+}
+.examples-list__item::before {
+  content: "\25CF";
+  margin-right: 0.1rem;
+}
