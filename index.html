@@ -5,10 +5,13 @@
   <meta content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Vowels chart</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg">
   <link href="./css/main.css" rel="stylesheet" type="text/css" />
   <link href="./css/utils.css" rel="stylesheet" type="text/css" />
   <link href="./css/panel.css" rel="stylesheet" type="text/css" />
   <link href="./css/vowels.css" rel="stylesheet" type="text/css" />
+  <script src="./js/global-variables.js"></script>
+  <script src="./js/setting.js"></script>
   <style id="vowels-locale-style">
     .vowels-table__row:not([data-locale~=en-US]):not([data-locale~=en-GB]) .vowels-table__symbol{
       color: #c5c2bd;
@@ -22,11 +25,13 @@
       display: none;
     }
   </style>
-  <script src="./js/global-variables.js"></script>
-  <script src="./js/setting.js"></script>
 </head>
 <body data-global-locale="en-US en-GB">
   <div id="page" class="full flex flex-center flex-col page-spaces">
+    <a class="github-link" href="https://github.com/aoeskills/vowels-chart" target="_blank">
+      <img src="./assets/images/github-icon.png">
+      vowels-chart
+    </a>
     <header>
       <h1>
         <ul class="t-list"><li class="t-list__zh">IPA 元音表</li><li class="t-list__en">IPA vowels chart</li></ul> 

@@ -29,7 +29,7 @@ header {
   display: flex;
   align-items: end;
   justify-content: center;
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
 }
 h1 {
   margin: 0;
@@ -120,4 +120,17 @@ footer {
 
 .footer-container {
   width: 80%;
+}
+
+.github-link {
+  align-self: end;
+  display: flex;
+  align-items: center;
+  height: min-content;
+  font-size: 0.6rem;
+  text-decoration: none;
+}
+.github-link img {
+  margin-right: 0.2rem;
+  width: 0.6rem;
 }
